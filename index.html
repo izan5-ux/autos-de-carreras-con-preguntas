@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Juego de Carreras - Preguntas</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background: #222;
+      overflow: hidden;
+    }
+    .track {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background: url('https://i.imgur.com/9P7s9gH.png') repeat-x center center / cover;
+    }
+    .car {
+      position: absolute;
+      bottom: 100px;
+      left: 0;
+      width: 100px;
+      transition: left 0.5s;
+      animation: bounce 0.5s infinite alternate;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-5px); }
+    }
+    .question-box {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      width: 60%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+    .answer {
+      display: block;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      background: #eee;
+      cursor: pointer;
+      text-align: center;
+    }
+    .answer.correct { background-color: #4CAF50; color: white; }
+    .answer.incorrect { background-color: #f44336; color: white; }
+    .finish-line {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 100px;
+      height: 100vh;
+      background: url('https://i.imgur.com/nTAWKgG.png') no-repeat center center / contain;
+    }
+    .win-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      color: yellow;
+      display: none;
+      text-shadow: 2px 2px 4px #000;
+    }
+  </style>
+</head>
+<body>
+  <audio src="https://www.bensound.com/bensound-music/bensound-energy.mp3" autoplay loop></audio>
+  <div class="track">
+    <div class="question-box">
+      <div id="question">Cargando pregunta...</div>
+      <div id="answers"></div>
+    </div>
+    <img src="https://i.imgur.com/hYRxjma.png" class="car" id="car" />
+    <div class="finish-line"></div>
+    <div class="win-message" id="winMessage">¡GANASTE!</div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "¿Cuál es el objetivo principal del proyecto?",
+        correct: "Que el auto no se salga del carril y respete normas",
+        wrong: "Que el auto corra lo más rápido posible"
+      },
+      {
+        question: "¿Qué empresas se mencionan como referentes?",
+        correct: "Tesla y Comma.ai",
+        wrong: "Ford y Peugeot"
+      },
+      {
+        question: "¿Qué es LIDAR?",
+        correct: "Una tecnología que mide distancias con láser",
+        wrong: "Un sistema de frenos automáticos"
+      },
+      {
+        question: "¿Qué usa el coche del proyecto?",
+        correct: "Mini computadora y webcam",
+        wrong: "Sensores ultrasónicos de alta gama"
+      },
+      {
+        question: "¿Qué problemas enfrenta el coche?",
+        correct: "Procesamiento limitado y errores de detección",
+        wrong: "Velocidad demasiado alta"
+      },
+      {
+        question: "¿Qué tipo de análisis se hace?",
+        correct: "Análisis retórico y lingüístico",
+        wrong: "Análisis económico y financiero"
+      },
+      {
+        question: "¿Qué se menciona como problema ético?",
+        correct: "Responsabilidad legal en accidentes",
+        wrong: "El costo de las autopartes"
+      }
+    ];
+
+    let car = document.getElementById("car");
+    let questionDiv = document.getElementById("question");
+    let answersDiv = document.getElementById("answers");
+    let winMessage = document.getElementById("winMessage");
+    let carPosition = 0;
+
+    function getRandomQuestion() {
+      return questions[Math.floor(Math.random() * questions.length)];
+    }
+
+    function showQuestion() {
+      answersDiv.innerHTML = "";
+      const q = getRandomQuestion();
+      questionDiv.textContent = q.question;
+
+      const correctBtn = document.createElement("div");
+      correctBtn.textContent = q.correct;
+      correctBtn.className = "answer";
+      correctBtn.onclick = () => handleAnswer(true, correctBtn);
+
+      const wrongBtn = document.createElement("div");
+      wrongBtn.textContent = q.wrong;
+      wrongBtn.className = "answer";
+      wrongBtn.onclick = () => handleAnswer(false, wrongBtn);
+
+      if (Math.random() > 0.5) {
+        answersDiv.append(correctBtn, wrongBtn);
+      } else {
+        answersDiv.append(wrongBtn, correctBtn);
+      }
+    }
+
+    function handleAnswer(isCorrect, btn) {
+      btn.classList.add(isCorrect ? "correct" : "incorrect");
+      if (isCorrect) {
+        carPosition += 100;
+      } else {
+        carPosition -= 50;
+      }
+      if (carPosition < 0) carPosition = 0;
+      car.style.left = carPosition + "px";
+
+      if (carPosition >= window.innerWidth - 150) {
+        winMessage.style.display = "block";
+        document.querySelector(".question-box").style.display = "none";
+        return;
+      }
+      setTimeout(showQuestion, 1000);
+    }
+
+    showQuestion();
+  </script>
+</body>
+</html>
